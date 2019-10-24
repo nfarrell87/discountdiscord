@@ -1,100 +1,60 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import 'antd/dist/antd.css';
+import './chrome.scrollbar.css';
+import './dark.min.css';
 import './index.css';
-import { Comment, Avatar, Form, Button, List, Input } from 'antd';
-import moment from 'moment';
+import { Layout, Menu, Icon } from 'antd';
+import MessageList from './components/MessageList'
+import MessageInput from './components/MessageInput'
+import logo from './images/DiscountDiscordLogo.png'
 
-const { TextArea } = Input;
+const { Header, Content, Footer, Sider } = Layout;
 
-const CommentList = ({ comments }) => (
-  <List
-    dataSource={comments}
-    header={`${comments.length} ${comments.length > 1 ? 'replies' : 'reply'}`}
-    itemLayout="horizontal"
-    renderItem={props => <Comment {...props} />}
-  />
-);
-
-const Editor = ({ onChange, onSubmit, submitting, value }) => (
-  <div>
-    <Form.Item>
-      <TextArea rows={4} onChange={onChange} value={value} />
-    </Form.Item>
-    <Form.Item>
-      <Button htmlType="submit" loading={submitting} onClick={onSubmit} type="primary">
-        Add Comment
-      </Button>
-    </Form.Item>
-  </div>
-);
-
-class App extends React.Component {
-  state = {
-    comments: [],
-    submitting: false,
-    value: '',
-  };
-
-  handleSubmit = () => {
-    if (!this.state.value) {
-      return;
-    }
-
-    this.setState({
-      submitting: true,
-    });
-
-    setTimeout(() => {
-      this.setState({
-        submitting: false,
-        value: '',
-        comments: [
-          {
-            author: 'Han Solo',
-            avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-            content: <p>{this.state.value}</p>,
-            datetime: moment().fromNow(),
-          },
-          ...this.state.comments,
-        ],
-      });
-    }, 1000);
-  };
-
-  handleChange = e => {
-    this.setState({
-      value: e.target.value,
-    });
-  };
-
-  render() {
-    const { comments, submitting, value } = this.state;
-
-    return (
-      <div>
-        {comments.length > 0 && <CommentList comments={comments} />}
-        <Comment
-          avatar={
-            <Avatar
-              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-              alt="Han Solo"
-            />
-          }
-          content={
-            <Editor
-              onChange={this.handleChange}
-              onSubmit={this.handleSubmit}
-              submitting={submitting}
-              value={value}
-            />
-          }
-        />
-      </div>
-    );
-  }
-}
-
-ReactDOM.render(<App />, document.getElementById('root'));
-          
+ReactDOM.render(
+    <Layout>
+      <Sider
+        breakpoint="lg"
+        collapsedWidth="0"
+        onBreakpoint={broken => {
+          console.log(broken);
+        }}
+        onCollapse={(collapsed, type) => {
+          console.log(collapsed, type);
+        }}
+      >
+        <div className="logo" />
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={['4']}>
+          <Menu.Item key="1">
+            <Icon type="user" />
+            <span className="nav-text">Chat Room 1</span>
+          </Menu.Item>
+          <Menu.Item key="2">
+            <Icon type="video-camera" />
+            <span className="nav-text">Chat Room 2</span>
+          </Menu.Item>
+          <Menu.Item key="3">
+            <Icon type="upload" />
+            <span className="nav-text">Chat Room 3</span>
+          </Menu.Item>
+          <Menu.Item key="4">
+            <Icon type="user" />
+            <span className="nav-text">Chat Room 4</span>
+          </Menu.Item>
+        </Menu>
+      </Sider>
+      <Layout>
+        <Header style={{background: '#222629', padding: 0, marginLeft: 'auto', marginRight: 'auto'}}><img style={{height: '4rem', width: '20rem', class: 'center'}} src={logo} /></Header>
+        <Content style={{ margin: '24px 16px 0' }}>
+          <div style={{ padding: 24, minHeight: 360 }}>
+              <MessageList />
+          </div>
+          <MessageInput />
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>©2019 Created by Nicholas and Corey <div>
+     <p>{"<All That's Left>"}</p>
+   </div></Footer>
+      </Layout>
+    </Layout>,
+    document.getElementById('container'),
+  );
