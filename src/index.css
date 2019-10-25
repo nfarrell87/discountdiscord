@@ -14,7 +14,7 @@ code {
 .demo-infinite-container {
   overflow: auto;
   padding: 8px 24px;
-  height: 40rem;
+  max-height: 40rem;
 }
 .demo-loading-container {
   position: absolute;

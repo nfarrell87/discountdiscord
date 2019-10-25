@@ -153,10 +153,10 @@ class ChatApp extends Component {
                     </List.Item>
                   )}>
                 </List>
-              </InfiniteScroll>
-            </div>
             <div style={{ float: "left", clear: "both" }}
               ref={(el) => { this.messagesEnd = el; }}>
+            </div>
+              </InfiniteScroll>
             </div>
             <WrappedInput className="input-field" onSubmit={this.addMessage} />
             </Content>
