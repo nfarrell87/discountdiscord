@@ -1,23 +1,42 @@
 import React, { Component } from 'react';
 import { ChatManager, TokenProvider } from '@pusher/chatkit-client';
-import { List, message, Avatar, Spin } from 'antd';
+import { List, message, Avatar, Spin, Layout } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
+import WhosOnlineList from './OnlineListener'
 import WrappedInput from './MsgInput';
+import logo from '../images/DiscountDiscordLogo.png'
 import '../index.css'
+import App from '../App'
+
+const { Header, Content, Footer, Sider } = Layout;
 
 class ChatApp extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentUser: null,
-      currentRoom: { users: [] },
+      currentUser: {},
+      currentRoom: {},
       messages: [],
+      usersWhoAreTyping: [],
       users: [],
       loading: false,
       hasMore: true,
     };
     this.addMessage = this.addMessage.bind(this);
+    this.sendTypingEvent = this.sendTypingEvent.bind(this)
   };
+  addMessage(text) {
+    this.state.currentUser.sendMessage({
+      text,
+      roomId: this.state.currentRoom.id
+    })
+      .catch(error => console.error('error', error));
+  };
+  sendTypingEvent() {
+    this.state.currentUser
+      .isTypingIn({ roomId: this.state.currentRoom.id })
+      .catch(error => console.error('error', error))
+  }
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
@@ -38,7 +57,7 @@ class ChatApp extends Component {
     chatManager
       .connect()
       .then(currentUser => {
-        this.setState({ currentUser: currentUser })
+        this.setState({ currentUser })
         return currentUser.subscribeToRoom({
           roomId: "d08e7e34-8532-43b2-8991-c9919f23977d",
           messageLimit: 100,
@@ -48,6 +67,20 @@ class ChatApp extends Component {
                 messages: [...this.state.messages, message],
               })
             },
+            onUserStartedTyping: user => {
+              this.setState({
+                usersWhoAreTyping: [...this.state.usersWhoAreTyping, user.name],
+              })
+            },
+            onUserStoppedTyping: user => {
+              this.setState({
+                usersWhoAreTyping: this.state.usersWhoAreTyping.filter(
+                  username => username !== user.name
+                ),
+              })
+            },
+            onPresenceChange: () => this.forceUpdate(),
+            onUserJoined: () => this.forceUpdate(),
           }
         })
       })
@@ -59,20 +92,13 @@ class ChatApp extends Component {
       })
       .catch(error => console.log(error))
   };
-  addMessage(text) {
-    this.state.currentUser.sendMessage({
-      text,
-      roomId: this.state.currentRoom.id
-    })
-      .catch(error => console.error('error', error));
-  };
+
   handleInfiniteOnLoad = () => {
     let { messages } = this.state;
     this.setState({
       loading: true,
     });
     if (messages.length > 14) {
-      message.warning('Infinite List loaded all');
       this.setState({
         hasMore: false,
         loading: false,
@@ -90,43 +116,53 @@ class ChatApp extends Component {
   render() {
     return (
       <div>
-        <div className="demo-infinite-container">
-          <InfiniteScroll
-            initialLoad={false}
-            pageStart={0}
-            loadMore={this.handleInfiniteOnLoad}
-            hasMore={!this.state.loading && this.state.hasMore}
-            useWindow={false}
-          >
-            <List
-              dataSource={this.state.messages}
-              renderItem={item => (
-                <List.Item key={item.id}>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                    }
-                    title={<a href="https://ant.design">{item.senderId}</a>}
-                    description={item.text}
-                  />
-                  <div>Content</div>
-                </List.Item>
-              )}
-            >
-              {this.state.loading && this.state.hasMore && (
-                <div className="demo-loading-container">
-                  <Spin />
-                </div>
-              )}
-            </List>
-          </InfiniteScroll>
-
-          <div style={{ float: "left", clear: "both" }}
-            ref={(el) => { this.messagesEnd = el; }}>
-          </div>
-        </div>
-        <WrappedInput className="input-field" onSubmit={this.addMessage} /></div>
-    )
-  }
-}
+      <Layout>
+        <Sider
+          breakpoint="lg"
+          collapsedWidth="0"
+          onBreakpoint={broken => {
+            console.log(broken);
+          }}
+          onCollapse={(collapsed, type) => {
+            console.log(collapsed, type);
+          }}
+        >
+          <div className="logo" />
+          <WhosOnlineList
+            currentUser={this.state.currentUser}
+            users={this.state.currentRoom.users}
+          />
+        </Sider>
+          <Content style={{ margin: '24px 16px 0' }}>
+            <div className="demo-infinite-container">
+              <InfiniteScroll
+                initialLoad={false}
+                pageStart={0}
+                loadMore={this.handleInfiniteOnLoad}
+                hasMore={!this.state.loading && this.state.hasMore}
+                useWindow={false}>
+                <List
+                  dataSource={this.state.messages}
+                  renderItem={item => (
+                    <List.Item key={item.id}>
+                      <List.Item.Meta
+                        avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                        title={<a href="https://ant.design">{item.senderId}</a>}
+                        description={item.text} />
+                      <div>Content</div>
+                    </List.Item>
+                  )}>
+                </List>
+              </InfiniteScroll>
+            </div>
+            <div style={{ float: "left", clear: "both" }}
+              ref={(el) => { this.messagesEnd = el; }}>
+            </div>
+            <WrappedInput className="input-field" onSubmit={this.addMessage} />
+            </Content>
+            </Layout>
+            </div>
+        )
+      }
+    }
 export default ChatApp;
