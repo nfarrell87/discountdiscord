@@ -128,6 +128,7 @@ class ChatApp extends Component {
           }}
         >
           <div className="logo" />
+          <h1 style={{ textAlign: 'center'}} >Chilln Members</h1><hr></hr>
           <WhosOnlineList
             currentUser={this.state.currentUser}
             users={this.state.currentRoom.users}

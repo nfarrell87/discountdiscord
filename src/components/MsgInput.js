@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Input, Form, Icon } from 'antd';
-function hasErrors(fieldsError) {
-    return Object.keys(fieldsError).some(field => fieldsError[field]);
-  }
+
+const { TextArea } = Input;
 class MsgInput extends Component {
     constructor(props) {
         super(props);
@@ -12,7 +11,7 @@ class MsgInput extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
-    
+
     componentDidMount() {
         // To disabled submit button at the beginning.
         this.props.form.validateFields();
@@ -21,36 +20,36 @@ class MsgInput extends Component {
         this.setState({
             message: e.target.value
         })
+        if (this.props.onChange) {
+            this.props.onChange()
+        }
     }
     handleSubmit(e) {
         e.preventDefault();
         this.props.onSubmit(this.state.message);
         this.setState({
-            message: ''
+            message: ' '
         })
     }
 
     render() {
-        const { getFieldDecorator, getFieldsError, getFieldError, isFieldTouched } = this.props.form;
-        const msginputError = isFieldTouched('msginput') && getFieldError('msginput');
         return (
+
             <div className="msgDiv">
-            <Form onSubmit={this.handleSubmit} className="input-field">
-                <Form.Item validateStatus={msginputError ? 'error' : ''} help={msginputError || ''}>
-                    {getFieldDecorator('msginput', {
-                        rules: [{ required: true, message: 'Please input your username!' }],
-                    })(
-                        <Input
+                <Form onSubmit={this.handleSubmit} className="input-field">
+                    <Form.Item>
+                        <TextArea rows={1}
+                            type="text"
                             prefix={<Icon type="message" />}
-                            placeholder="Type here to send a message to the current chat room!"
-                            name="msginput"
+                            placeholder="Type a message here and press ENTER to send!"
                             onChange={this.handleChange}
+                            onPressEnter={this.handleSubmit}
                             value={this.state.message}
-                            suffix={<Button type="primary" htmlType="submit" disabled={hasErrors(getFieldsError())}>Send</Button>}
-                        />,
-                        )}
-                </Form.Item>
-            </Form>
+                            autoSize={{ minRows: 1, maxRows: 6 }}
+                        />
+                    </Form.Item>
+
+                </Form>
             </div>
         )
     }
