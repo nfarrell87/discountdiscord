@@ -147,10 +147,10 @@ class ChatApp extends Component {
                   renderItem={item => (
                     <List.Item key={item.id}>
                       <List.Item.Meta
-                        avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                        avatar={<Avatar icon="user" />}
                         title={<a href="https://ant.design">{item.senderId}</a>}
                         description={item.text} />
-                      <div>Content</div>
+                      <div>sent on 10/20/2019 at 00:00</div>
                     </List.Item>
                   )}>
                 </List>
